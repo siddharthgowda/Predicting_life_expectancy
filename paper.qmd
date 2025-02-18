@@ -1,0 +1,153 @@
+---
+title: "Prediction Developing Countries' Life Expectancy"
+author: 
+  - Siddharth Gowda
+  - Syed Hasan
+  - Arshh Relan
+date: today
+date-format: long
+format: pdf
+number-sections: true
+toc: true
+bibliography: references.bib
+---
+
+\newpage
+
+# Introduction
+
+\newpage
+
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+library(tidyverse)
+library(arrow)
+library(knitr)
+library(modelsummary)
+library(janitor)
+library(ggplot2)
+library(knitr)
+```
+
+# Data Description
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+raw_data = read_csv("./Life_Expectancy_Data.csv")
+clean_data = raw_data %>% clean_names() %>% drop_na()
+
+```
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+data_interest = clean_data %>% filter(status == "Developing") %>% rename(gdp_capita = gdp) %>% select(life_expectancy, infant_deaths, hiv_aids, gdp_capita, schooling, percentage_expenditure, alcohol)
+data_interest <- data_interest %>% 
+  mutate(alcohol = case_when(alcohol <= 1.08 ~ "Negligible", 
+                             TRUE ~ "Consumed"))
+
+```
+
+## Response Variable
+
+```{r}
+#| label: fig-hislfe
+#| echo: false
+#| warning: false
+life_expectancy_stats <- data_interest %>%
+  summarise(
+    Mean = mean(life_expectancy, na.rm = TRUE),
+    Median = median(life_expectancy, na.rm = TRUE),
+    Std_Dev = sd(life_expectancy, na.rm = TRUE),
+    Min = min(life_expectancy, na.rm = TRUE),
+    Max = max(life_expectancy, na.rm = TRUE)
+  )
+
+
+ggplot(data_interest, aes(x = life_expectancy)) +
+  geom_histogram(binwidth = 4, fill = "skyblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Histogram of Life Expectancy", x = "Life Expectancy", y = "Countries")
+
+# kable(life_expectancy_stats, caption = "Basic Statistics for Life Expectancy")
+```
+
+\newpage
+
+## Predictor Variables
+
+```{r}
+#| label: fig-predvars
+#| layout-ncol: 3
+#| layout-nrow: 2
+#| fig-cap: ""
+#| fig-subcap: ["", "", "", "", "", ""]
+#| fig-align: "center"
+#| echo: false
+#| warning: false
+#| message: false
+#| fig.show: "hold"
+
+ggplot(data_interest, aes(x = hiv_aids)) +
+  geom_histogram(binwidth = 2, fill = "skyblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Histogram of HIV/AIDS", x = "HIV/AIDS Deaths per 1000 live births", y = "Countries")
+
+ggplot(data_interest, aes(x = gdp_capita)) +
+  geom_histogram(binwidth = 2500, fill = "lightgreen", color = "black") +
+  theme_minimal() +
+  labs(title = "Histogram of GDP per Capita", x = "GDP per Capita", y = "Countries")
+
+ggplot(data_interest, aes(x = infant_deaths)) +
+  geom_histogram(binwidth = 50, fill = "lightcoral", color = "black") +
+  theme_minimal() +
+  labs(title = "Histogram of Infant Deaths", x = "Infant Deaths per 1000 People", y = "Countries")
+
+ggplot(data_interest, aes(x = percentage_expenditure)) +
+  geom_histogram(binwidth = 250, fill = "lightblue", color = "black") +
+  theme_minimal() +
+  labs(title = "Histogram of Health Expenditure", x = "Health Expenditure (as a percentage of GDP per capita)", y = "Countries")
+
+ggplot(data_interest, aes(x = schooling)) +
+  geom_histogram(binwidth = 1, fill = "lightgoldenrod", color = "black") +
+  theme_minimal() +
+  labs(title = "Histogram of Schooling", x = "Average Number of years of Schooling", y = "Countries")
+
+ggplot(data_interest, aes(x = alcohol, fill = alcohol)) +
+  geom_bar() +
+  theme_minimal() +
+  labs(title = "Number of Countries that Consume Alcohol", 
+       x = "Alcohol Category", y = "Number of Countries") +
+  scale_fill_manual(values = c("Negligible" = "skyblue", "Consumed" = "salmon"))
+
+
+```
+
+```{r}
+#| include: false
+#| warning: false
+#| message: false
+
+alcohol_status <- data_interest %>%
+  group_by(alcohol) %>%
+  summarise(Count = n()) %>%
+  as.data.frame()
+
+# Display the table using kable
+# kable(alcohol_status, caption = "Number of Countries with Negligible and Consumed Alcohol Data")
+
+
+```
+
+\newpage
+
+# Preliminary Results
+
