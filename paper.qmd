@@ -9,7 +9,6 @@ date-format: long
 format: pdf
 number-sections: true
 toc: true
-bibliography: references.bib
 ---
 
 \newpage
@@ -122,7 +121,7 @@ ggplot(data_interest, aes(x = schooling)) +
   labs(title = "Histogram of Schooling", x = "Average Number of years of Schooling", y = "Countries")
 
 ggplot(data_interest, aes(x = alcohol, fill = alcohol)) +
-  geom_bar() +
+  geom_bar(color = "black") +
   theme_minimal() +
   labs(title = "Number of Countries that Consume Alcohol", 
        x = "Alcohol Category", y = "Number of Countries") +
@@ -150,4 +149,53 @@ alcohol_status <- data_interest %>%
 \newpage
 
 # Preliminary Results
+
+## Basic Linear Model Summary
+
+Model is Life Expectancy = GDP Per Capita + Infant Deaths (per 1000 people) + HIV/AID Deaths (per 1000 live births) + Health Expenditure (as a percentage of GDP per Capita) + Average Number of Years of Schooling + Alcohol Consumption (Negligible Consumption vs. Alcohol is Consumed)
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+
+preliminary_model = lm(life_expectancy ~ infant_deaths + hiv_aids + gdp_capita + 
+                         schooling + percentage_expenditure + alcohol, 
+                       data=data_interest)
+
+#summary(preliminary_model)
+modelsummary(preliminary_model)
+
+```
+
+## Residual Plots
+
+```{r}
+#| label: fig-resplots
+#| layout-ncol: 3
+#| fig-cap: ""
+#| fig-subcap: ["", "", ""]
+#| fig-align: "center"
+#| echo: false
+#| warning: false
+#| message: false
+#| fig.show: "hold"
+
+plot(preliminary_model, which = 1)
+plot(preliminary_model, which = 2)
+standard_residuals = rstandard(preliminary_model)
+plot(data_interest$gdp_capita, standard_residuals, main="Standardized Residuals V. GDP Per Capita", 
+     xlab="GDP Per Capita", ylab="Standardized Residuals")
+
+```
+
+### Linear Regression Residual Assumptions:
+
+#### Linearity
+#### Normal Errors
+#### Constant Variance Assumption
+
+
+
+# Conclusion
 
