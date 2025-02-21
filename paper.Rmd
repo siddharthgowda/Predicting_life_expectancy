@@ -27,13 +27,14 @@ Arshh Relan: Introduction writing, Data Description (Predictor Variables), Preli
 
 Life expectancy is a fundamental indicator of a country's overall health and development. It reflects the effectiveness of healthcare systems, economic stability, and social progress. In developing countries healthcare resources are often constrained and economic disparities persist. Here, understanding the factors that influence life expectancy is critical for shaping effective policies. This study aims to answer the question: How economic, health and social factors influence life expectancy in developing countries, collectively and individually?
 
-A multiple linear regression model is used, incorporating GDP per capita, alcohol consumption (categorical variable), schooling, infant mortality, health expenditure (as a percentage of a country’s GDP per capita), and HIV deaths as explanatory variables. Existing literature provides strong evidence supporting the relationship between these factors and life expectancy. Miladinov (2020) examined the link between socioeconomic development and life expectancy in EU accession candidate countries, finding that higher GDP per capita and lower infant mortality rates were associated with increased life expectancy. Our study focuses on developing nations facing similar economic and healthcare challenges.
+A multiple linear regression model is used, incorporating GDP per capita, alcohol consumption (categorical variable), schooling, infant mortality, health expenditure (as a percentage of a GDP per capita), and HIV deaths as explanatory variables. Existing literature provides strong evidence supporting the relationship between these factors and life expectancy. Miladinov (2020) examined the link between socioeconomic development and life expectancy in EU accession candidate countries, finding that higher GDP per capita and lower infant mortality rates were associated with increased life expectancy. Our study focuses on developing nations facing similar economic and healthcare challenges.
 
 Adebayo et al. (2024) analyzed data in the United States, finding higher health expenditure and GDP per capita positively impact life expectancy while higher infant mortality reduces it. Our study extends this analysis to developing countries, allowing us to compare how these determinants function in different economic contexts. Our study provides a broader perspective on additional health risks that impact life expectancy in low-income nations.
 
 A third study on OECD countries (Roffia et al., 2022) found that education and economic conditions played a critical role in increasing life expectancy. This supports our inclusion of schooling as a key predictor, as education directly influences health outcomes and economic mobility.
 
 Life expectancy is influenced by a combination of factors, making a univariate approach insufficient. Multiple linear regression (MLR) is well-suited for this study as it quantifies the relationship between life expectancy (continuous response variable) and multiple predictors. MLR allows for simultaneous control of confounding variables, ensuring each predictor’s effect is estimated independently. The model provides interpretable coefficients allowing us to measure each socioeconomic and health factor’s impact on a developing country’s life expectancy. An interpretation of these results can help developing countries understand how to improve life expectancy.
+
 
 \newpage
 
@@ -53,7 +54,7 @@ library(ggplot2)
 
 # Data Description
 
-The dataset used was obtained from [Kaggle](https://www.kaggle.com/datasets/kumarajarshi/life-expectancy-who) (Rajarshi 2018). The data-authors compiled WHO and UN datasets which collect health, economic, and demographic data over multiple years from national agencies and censuses. The purpose was to inform policy-makers regarding individual variables impacting life expectancy in all countries. Our paper aims to create a recipe for developing countries to improve life expectancy.
+The dataset used was obtained from [Kaggle](https://www.kaggle.com/datasets/kumarajarshi/life-expectancy-who) (Rajarshi 2018). The data-authors compiled WHO and UN datasets which collect health, economic, and demographic data over multiple years from national agencies and censuses. The purpose was to inform policy-makers regarding individual variables impacting life expectancy in all countries. However, our paper aims to create a recipe for developing countries to improve life expectancy.
 
 Before analysis, rows missing values were removed. Alcohol consumption was converted into a categorical variable due to legal restrictions in some countries. Using raw numerical values could be misleading as zero consumption may not indicate abstinence but a ban. The alcohol categories are: **Negligible** (≤1.08 liters/capita) and **Consumed** (>1.08 liters/capita).
 
@@ -88,7 +89,6 @@ write_csv(data_interest, "./clean_data.csv")
 #| echo: false
 #| warning: false
 
-
 ggplot(data_interest, aes(x = life_expectancy)) +
   geom_histogram(binwidth = 4, fill = "skyblue", color = "black") +
   theme_minimal() +
@@ -107,8 +107,6 @@ The response variable, life expectancy, represents the average years a newborn i
 #| label: fig-predvars
 #| layout-ncol: 3
 #| layout-nrow: 2
-#| fig-cap: ""
-#| fig-subcap: ["", "", "", "", "", ""]
 #| fig-align: "center"
 #| echo: false
 #| warning: false
@@ -149,14 +147,46 @@ ggplot(data_interest, aes(x = alcohol, fill = alcohol)) +
 
 
 ```
+Most variables (HIV, GDP per capita, Infant Deaths, Health Expenditure) are heavily left-skewed with long outlier-tails, while schooling is slightly left-skewed, centered around 12 years. Most countries consume alcohol.
 
 The selected predictor variables are supported by prior research. Miladinov (2020) found that higher GDP per capita is linked to better health and longer life expectancy (Adebayo et al., 2024). Health expenditure reflects a government's commitment to healthcare. Roffia et al. (2023) emphasized that investments in health and social care systems are key drivers of longevity. Infant mortality rate is a widely used indicator of healthcare quality and social well-being, where reductions contribute to longer life expectancy (Adebayo et al., 2024). Schooling represents human capital investment, influencing health awareness and healthcare access. HIV prevalence and alcohol consumption serve as public-health risk indicators, potentially reducing longevity (Miladinov 2020).
-
-Most variables (HIV, GDP per capita, Infant Deaths, Health Expenditure) are heavily left-skewed with long outlier-tails, while schooling is slightly left-skewed, centered around 12 years. Most countries consume alcohol.
 
 \newpage
 
 # Preliminary Results
+
+```{r}
+#| warning: false
+#| message: false
+#| echo: false
+preliminary_model = lm(life_expectancy ~ infant_deaths + hiv_aids + gdp_capita + 
+                         schooling + percentage_expenditure + alcohol, 
+                       data=data_interest)
+```
+
+## Residual Plots
+
+
+```{r}
+#| label: fig-resplots
+#| layout-ncol: 3
+#| fig-align: "center"
+#| echo: false
+#| warning: false
+#| message: false
+#| fig.show: "hold"
+
+plot(preliminary_model, which = 1)
+plot(preliminary_model, which = 2)
+standard_residuals = rstandard(preliminary_model)
+plot(data_interest$schooling, standard_residuals, main="Standardized Residuals V. Schooling", 
+     xlab="Average Years in School", ylab="Standardized Residuals")
+
+```
+
+Residual analysis revealed several assumption violations. The **residual vs. fitted plot** showed a wave-like pattern, violating linearity, and demonstrated non-constant variance, particularly in the 60-70 year range. The **QQ plot** showed mostly normal residuals, but there was deviation at the tails, indicating minor normality violations. The **standardized residuals vs. schooling plot** showed no residual patterns and no significant violations of linearity or constant variance, suggesting schooling's relationship with life expectancy is appropriately modeled.
+
+## Model Results
 
 $$
 \begin{aligned}
@@ -169,7 +199,6 @@ $$
 & - 0.670 \times \text{AlcoholNegligible}
 \end{aligned}
 $$
-
 
 ```{r}
 #| label: tbl-modelresults
@@ -204,8 +233,6 @@ Our initial model examined five predictors of life expectancy, with schooling em
 ```{r}
 #| label: fig-confoundingplots
 #| layout-ncol: 2
-#| fig-cap: ""
-#| fig-subcap: ["", ""]
 #| fig-align: "center"
 #| warning: false
 #| message: false
@@ -232,33 +259,7 @@ ggplot(data_interest, aes(x = percentage_expenditure, fill = alcohol)) +
 
 ```
 
-
-
-## Residual Plots
-
-
-```{r}
-#| label: fig-resplots
-#| layout-ncol: 3
-#| fig-cap: ""
-#| fig-subcap: ["", "", ""]
-#| fig-align: "center"
-#| echo: false
-#| warning: false
-#| message: false
-#| fig.show: "hold"
-
-plot(preliminary_model, which = 1)
-plot(preliminary_model, which = 2)
-standard_residuals = rstandard(preliminary_model)
-plot(data_interest$schooling, standard_residuals, main="Standardized Residuals V. Schooling", 
-     xlab="Average Years in School", ylab="Standardized Residuals")
-
-```
-
-Residual analysis revealed several assumption violations. The **residual vs. fitted plot** showed a wave-like pattern, violating linearity, and demonstrated non-constant variance, particularly in the 60-70 year range. The **QQ plot** showed that while the residuals were mostly normal, there was nonlinear deviation at the tails from the normality line, indicating minor normality violations. The **standardized residuals vs. schooling plot** showed no residual patterns and no significant violations of linearity or constant variance, suggesting schooling's relationship with life expectancy is appropriately modeled.
-
-## Literature Connection
+### Literature Connection
 
 Our findings partially align with existing literature. Like Miladinov (2020), we found significant negative effects of infant mortality and HIV prevalence on life expectancy. Our results support the OECD study's emphasis on education's importance, showing a strong positive relationship between schooling and longevity. Adebayo et al. (2024) highlighted health expenditure's positive impact, which our model confirms.Our findings diverge regarding GDP per capita's significance. Both Miladinov (2020) and Adebayo et al. (2024) found GDP per capita to be a key predictor, contrary to our results. Additionally, our finding on alcohol consumption's relationship with life expectancy contradicts Miladinov’s research, warranting further investigation.
 
