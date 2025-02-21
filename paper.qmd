@@ -11,6 +11,8 @@ number-sections: true
 toc: true
 ---
 
+# Contributions
+
 \newpage
 
 # Introduction
@@ -30,12 +32,9 @@ To analyze these relationships, our study employs multiple linear regression. Th
 #| message: false
 
 library(tidyverse)
-library(arrow)
 library(knitr)
-library(modelsummary)
 library(janitor)
 library(ggplot2)
-library(knitr)
 ```
 
 # Data Description
@@ -136,43 +135,69 @@ ggplot(data_interest, aes(x = alcohol, fill = alcohol)) +
 
 ```
 
-```{r}
-#| include: false
-#| warning: false
-#| message: false
-
-alcohol_status <- data_interest %>%
-  group_by(alcohol) %>%
-  summarise(Count = n()) %>%
-  as.data.frame()
-
-# Display the table using kable
-# kable(alcohol_status, caption = "Number of Countries with Negligible and Consumed Alcohol Data")
-
-
-```
-
 \newpage
 
 # Preliminary Results
 
-## Basic Linear Model Summary
-
-Model is Life Expectancy = GDP Per Capita + Infant Deaths (per 1000 people) + HIV/AID Deaths (per 1000 live births) + Health Expenditure (as a percentage of GDP per Capita) + Average Number of Years of Schooling + Alcohol Consumption (Negligible Consumption vs. Alcohol is Consumed)
-
 ```{r}
+#| label: tbl-modelresults
 #| warning: false
 #| message: false
 #| echo: false
-
 preliminary_model = lm(life_expectancy ~ infant_deaths + hiv_aids + gdp_capita + 
                          schooling + percentage_expenditure + alcohol, 
                        data=data_interest)
 
 #summary(preliminary_model)
-modelsummary(preliminary_model)
+
+model_table <- data.frame(
+  Variable = c("(Intercept)", "Infant Deaths", "HIV/AIDS", "GDP per Capita", 
+               "Schooling", "Percentage Expenditure", "Alcohol (Negligible)"),
+  Estimate = c(49.50, -0.002131, -0.6713, 7.542e-06, 1.701, 0.00109, -0.670),
+  Std_Error = c(0.7476, 0.0009369, 0.01917, 5.514e-05, 0.06129, 0.0003605, 0.2859),
+  T_Value = c(66.216, -2.274, -35.018, 0.137, 27.757, 3.025, -2.343),
+  P_Value = c("< 2e-16", "0.02309", "< 2e-16", "0.89121", "< 2e-16", "0.00253", "0.01924")
+)
+
+# Generate a nicely formatted table
+kable(model_table, digits = 4, align = "c",
+      col.names = c("Variable", "Estimate", "Std. Error", "t Value", "Pr(>|t|)"))
 
 ```
+
+## Confouding Plots
+
+```{r}
+#| label: fig-confoundingplots
+#| layout-ncol: 2
+#| fig-cap: ""
+#| fig-subcap: ["", ""]
+#| fig-align: "center"
+#| warning: false
+#| message: false
+#| echo: false
+#| fig.show: "hold"
+
+ggplot(data_interest, aes(x = percentage_expenditure, y = gdp_capita)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth() +
+  theme_minimal() +
+  labs(title = "Health Expenditure can Predict GDP Per Capita",
+       x = "Health Expenditure (as a percentage of GDP per capita)", 
+       y = "GDP per Capita")
+
+ggplot(data_interest, aes(x = percentage_expenditure, fill = alcohol)) +
+  geom_histogram(binwidth = 250, color = "black", alpha = 0.6, position = "identity") +
+  theme_minimal() +
+  labs(title = "Countries that Consume Alcohol Spend More on Health",
+       x = "Health Expenditure (as a percentage of GDP per capita)",
+       y = "Count",
+       fill = "Alcohol Consumption") +
+  scale_fill_manual(values = c("Negligible" = "skyblue", "Consumed" = "salmon"))
+
+
+```
+
 
 ## Residual Plots
 
@@ -190,18 +215,7 @@ modelsummary(preliminary_model)
 plot(preliminary_model, which = 1)
 plot(preliminary_model, which = 2)
 standard_residuals = rstandard(preliminary_model)
-plot(data_interest$gdp_capita, standard_residuals, main="Standardized Residuals V. GDP Per Capita", 
-     xlab="GDP Per Capita", ylab="Standardized Residuals")
+plot(data_interest$schooling, standard_residuals, main="Standardized Residuals V. Schooling", 
+     xlab="Average Years in School", ylab="Standardized Residuals")
 
 ```
-
-### Linear Regression Residual Assumptions:
-
-#### Linearity
-#### Normal Errors
-#### Constant Variance Assumption
-
-
-
-# Conclusion
-
