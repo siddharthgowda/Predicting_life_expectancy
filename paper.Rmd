@@ -56,7 +56,7 @@ library(ggplot2)
 
 The dataset used was obtained from [Kaggle](https://www.kaggle.com/datasets/kumarajarshi/life-expectancy-who) (Rajarshi 2018). The data-authors compiled WHO and UN datasets which collect health, economic, and demographic data over multiple years from national agencies and censuses. The purpose was to inform policy-makers regarding individual variables impacting life expectancy in all countries. However, our paper aims to create a recipe for developing countries to improve life expectancy.
 
-Before analysis, rows missing values were removed. Alcohol consumption was converted into a categorical variable due to legal restrictions in some countries. Using raw numerical values could be misleading as zero consumption may not indicate abstinence but a ban. The alcohol categories are: **Negligible** (≤1.08 liters/capita) and **Consumed** (>1.08 liters/capita).
+Before analysis, rows missing values were removed. Alcohol consumption was converted into a categorical variable due to legal restrictions in some countries. Using raw numerical values could be misleading as zero consumption may not indicate abstinence but a ban. The alcohol categories are: **Negligible** ($\leq$ 1.08 liters/capita) and **Consumed** (>1.08 liters/capita).
 
 
 ```{r}
