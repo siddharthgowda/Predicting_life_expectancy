@@ -63,8 +63,8 @@ Before analysis, rows missing values were removed. Alcohol consumption was conve
 #| warning: false
 #| message: false
 
-raw_data = read_csv("./Life_Expectancy_Data.csv")
-clean_data = raw_data %>% clean_names() %>% drop_na()
+raw_data = read_csv("./raw_data.csv")
+data_interest = raw_data %>% clean_names() %>% drop_na()
 
 ```
 
@@ -72,10 +72,14 @@ clean_data = raw_data %>% clean_names() %>% drop_na()
 #| include: false
 #| warning: false
 #| message: false
-data_interest = clean_data %>% filter(status == "Developing") %>% rename(gdp_capita = gdp) %>% select(life_expectancy, infant_deaths, hiv_aids, gdp_capita, schooling, percentage_expenditure, alcohol)
+data_interest = data_interest %>% filter(status == "Developing") %>% rename(gdp_capita = gdp) %>% select(life_expectancy, infant_deaths, hiv_aids, gdp_capita, schooling, percentage_expenditure, alcohol)
 data_interest <- data_interest %>% 
   mutate(alcohol = case_when(alcohol <= 1.08 ~ "Negligible", 
                              TRUE ~ "Consumed"))
+
+write_csv(data_interest, "./clean_data.csv")
+
+
 
 ```
 
