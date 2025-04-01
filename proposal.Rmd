@@ -49,7 +49,6 @@ library(tidyverse)
 library(knitr)
 library(janitor)
 library(ggplot2)
-library(leaps)
 ```
 
 
@@ -263,99 +262,6 @@ ggplot(data_interest, aes(x = percentage_expenditure, fill = alcohol)) +
 ### Literature Connection
 
 Our findings partially align with existing literature. Like Miladinov (2020), we found significant negative effects of infant mortality and HIV prevalence on life expectancy. Our results support the OECD study's emphasis on education's importance, showing a strong positive relationship between schooling and longevity. Adebayo et al. (2024) highlighted health expenditure's positive impact, which our model confirms.Our findings diverge regarding GDP per capita's significance. Both Miladinov (2020) and Adebayo et al. (2024) found GDP per capita to be a key predictor, contrary to our results. Additionally, our finding on alcohol consumption's relationship with life expectancy contradicts Miladinov’s research, warranting further investigation.
-
-# Model Results
-
-```{r}
-
-plot(log1p(data_interest$infant_deaths), data_interest$life_expectancy)
-plot(log1p(data_interest$infant_deaths), data_interest$life_expectancy)
-
-data_interest_final <- data_interest %>%
-  select(-gdp_capita) %>%
-  mutate(
-    infant_deaths_lg1p = log1p(infant_deaths),
-    infant_deaths_cat = case_when(
-      infant_deaths_lg1p < 2 ~ "low",
-      TRUE ~ "high"
-    ), 
-    hiv_aids_lg1p = log1p(hiv_aids),
-    percentage_expenditure_lg1p = log1p(percentage_expenditure)
-    ) %>% select(life_expectancy, infant_deaths_lg1p, hiv_aids_lg1p, 
-                         schooling, percentage_expenditure_lg1p, alcohol)
-
-secondary_model_infant_lg = lm(life_expectancy ~ infant_deaths_lg1p + hiv_aids_lg1p + 
-                         schooling + percentage_expenditure_lg1p + alcohol, 
-                       data=data_interest_final)
-summary(secondary_model_infant_lg)
-
-plot(secondary_model_infant_lg, which = 1)
-plot(secondary_model_infant_lg, which = 2)
-hist(rstandard(secondary_model_infant_lg))
-# hist(rstandard(preliminary_model))
-
-
-```
-# Final Model
-
-$$
-\begin{aligned}
-\hat{\text{LifeExpectancy}} =\ & 57.86 \\
-& - 0.374 \times \text{InfantDeaths\_lg1p} \\
-& - 6.228 \times \text{HIV\_AIDS\_lg1p} \\
-& + 1.067 \times \text{Schooling} \\
-& + 0.541 \times \text{PercentageExpenditure\_lg1p} \\
-& - 1.511 \times \text{AlcoholNegligible}
-\end{aligned}
-$$
-
-```{r}
-
-# Create the initial data frame with regression results
-results <- data.frame(
-  Term = c("(Intercept)", "infant_deaths_lg1p", "hiv_aids_lg1p", "schooling", 
-           "percentage_expenditure_lg", "alcoholNegligible"),
-  Estimate = c(57.86168, -0.37360, -6.22788, 1.06694, 0.54056, -1.51114),
-  Std_Error = c(0.72966, 0.06815, 0.13066, 0.05544, 0.06703, 0.23922),
-  t_value = c(79.300, -5.482, -47.663, 19.244, 8.064, -6.317),
-  p_val = c("< 2e-16", "4.99e-08", "< 2e-16", "< 2e-16", "1.57e-15", "3.57e-10")
-)
-
-# Calculating 95% confidence intervals
-n <- 1407
-p <- 5
-
-df <- n - p - 1
-
-alpha <- 0.05
-
-t_crit <- qt(1 - alpha/2, df)
-
-margin_of_error <- t_crit * results$Std_Error
-
-lower_bound <- results$Estimate - margin_of_error
-upper_bound <- results$Estimate + margin_of_error
-
-results$UpperBound95 <- lower_bound
-results$LowerBound95 <- upper_bound
-
-kable(results, col.names = c("Term", "Estimate", "Std. Error", "t value", "Pr(>|t|)", 
-                            "95% CI Lower", "95% CI Upper"), 
-      caption = "Final Regression Results")
-
-```
-
-```{r}
-
-stepwise_regression <- regsubsets(life_expectancy ~ ., data = data_interest_final, 
-                                  nvmax = 10, nbest = 1, really.big = TRUE, method = "seqrep")
-
-par(mfrow = c(1,2))
-
-plot(stepwise_regression, scale = "adjr2")
-plot(stepwise_regression, scale = "bic")
-
-```
 
 \newpage
 
