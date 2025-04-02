@@ -12,7 +12,7 @@ toc: true
 ---
 
 
-# Contributions
+# Contributions [TODO: UPDATE THIS]
 
 Siddharth Gowda: Cleaning data, generating tables and plots, plot interpretation, data description writing, preliminary model writing.
 
@@ -165,7 +165,7 @@ preliminary_model = lm(life_expectancy ~ infant_deaths + hiv_aids + gdp_capita +
                        data=data_interest)
 ```
 
-## Residual Plots
+## Preliminary Residual Plots
 
 
 ```{r}
@@ -187,7 +187,7 @@ plot(data_interest$schooling, standard_residuals, main="Standardized Residuals V
 
 Residual analysis revealed several assumption violations. The **residual vs. fitted plot** showed a wave-like pattern, violating linearity, and demonstrated non-constant variance, particularly in the 60-70 year range. The **QQ plot** showed mostly normal residuals, but there was deviation at the tails, indicating minor normality violations. The **standardized residuals vs. schooling plot** showed no residual patterns and no significant violations of linearity or constant variance, suggesting schooling's relationship with life expectancy is appropriately modeled.
 
-## Model Results
+## Preliminary Model Results
 
 $$
 \begin{aligned}
@@ -232,21 +232,12 @@ Our initial model examined five predictors of life expectancy, with schooling em
 
 
 ```{r}
-#| label: fig-confoundingplots
-#| layout-ncol: 2
+#| label: fig-alcoholhealth
 #| fig-align: "center"
 #| warning: false
 #| message: false
 #| echo: false
 #| fig.show: "hold"
-
-ggplot(data_interest, aes(x = percentage_expenditure, y = gdp_capita)) +
-  geom_point(alpha = 0.6) +
-  geom_smooth() +
-  theme_minimal() +
-  labs(title = "Health Expenditure can Predict GDP Per Capita",
-       x = "Health Expenditure (as a percentage of GDP per capita)", 
-       y = "GDP per Capita")
 
 ggplot(data_interest, aes(x = percentage_expenditure, fill = alcohol)) +
   geom_histogram(binwidth = 250, color = "black", alpha = 0.6, position = "identity") +
@@ -264,12 +255,84 @@ ggplot(data_interest, aes(x = percentage_expenditure, fill = alcohol)) +
 
 Our findings partially align with existing literature. Like Miladinov (2020), we found significant negative effects of infant mortality and HIV prevalence on life expectancy. Our results support the OECD study's emphasis on education's importance, showing a strong positive relationship between schooling and longevity. Adebayo et al. (2024) highlighted health expenditure's positive impact, which our model confirms.Our findings diverge regarding GDP per capita's significance. Both Miladinov (2020) and Adebayo et al. (2024) found GDP per capita to be a key predictor, contrary to our results. Additionally, our finding on alcohol consumption's relationship with life expectancy contradicts Miladinov’s research, warranting further investigation.
 
-# Model Results
+# Model Selection
 
 ```{r}
 
-plot(log1p(data_interest$infant_deaths), data_interest$life_expectancy)
-plot(log1p(data_interest$infant_deaths), data_interest$life_expectancy)
+ggplot(data_interest, aes(x = percentage_expenditure, y = life_expectancy)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", se = TRUE, color = "blue") +
+  labs(x = "Percentage Expenditure (as percentage of GDP per capita)", y = "Life Expectancy", 
+       title = "Percentage Expenditure vs Life Expectancy") +
+  theme_minimal()
+
+ggplot(data_interest, aes(x = log1p(percentage_expenditure), y = life_expectancy)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(x = "Log(1 + Percentage Expenditure)", y = "Life Expectancy", 
+       title = "Log-Transformed Percentage Expenditure vs Life Expectancy") +
+  theme_minimal()
+
+
+```
+```{r}
+
+
+ggplot(data_interest, aes(x = infant_deaths, y = life_expectancy)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", se = TRUE, color = "blue") +
+  labs(x = "Infant Deaths", y = "Life Expectancy", 
+       title = "Infant Deaths Per 1000 People vs Life Expectancy") +
+  theme_minimal()
+
+ggplot(data_interest, aes(x = log1p(infant_deaths), y = life_expectancy)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(x = "Log(1 + Infant Deaths)", y = "Life Expectancy", 
+       title = "Log-Transformed Infant Deaths vs Life Expectancy") +
+  theme_minimal()
+
+```
+
+
+```{r}
+
+ggplot(data_interest, aes(x = hiv_aids, y = life_expectancy)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "loess", se = TRUE, color = "blue") +
+  labs(x = "HIV/AIDS Per 1000 Live Births", y = "Life Expectancy", 
+       title = "HIV/AIDS vs Life Expectancy") +
+  theme_minimal()
+
+ggplot(data_interest, aes(x = log1p(hiv_aids), y = life_expectancy)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "red") +
+  labs(x = "Log(1 + HIV/AIDS)", y = "Life Expectancy", 
+       title = "Log-Transformed HIV/AIDS vs Life Expectancy") +
+  theme_minimal()
+
+
+```
+
+```{r}
+#| label: fig-gdpcapitahealth
+#| fig-align: "center"
+#| warning: false
+#| message: false
+#| echo: false
+#| fig.show: "hold"
+
+ggplot(data_interest, aes(x = percentage_expenditure, y = gdp_capita)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = TRUE, color = "blue") +
+  theme_minimal() +
+  labs(title = "Health Expenditure can Predict GDP Per Capita",
+       x = "Health Expenditure (as a percentage of GDP per capita)", 
+       y = "GDP per Capita")
+```
+# Final Model Inference & Results
+
+```{r}
 
 data_interest_final <- data_interest %>%
   select(-gdp_capita) %>%
@@ -296,7 +359,6 @@ hist(rstandard(secondary_model_infant_lg))
 
 
 ```
-# Final Model
 
 $$
 \begin{aligned}
@@ -356,6 +418,8 @@ plot(stepwise_regression, scale = "adjr2")
 plot(stepwise_regression, scale = "bic")
 
 ```
+
+# Discussion and Conclusion
 
 \newpage
 
