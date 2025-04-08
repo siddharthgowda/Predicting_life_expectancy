@@ -178,10 +178,11 @@ preliminary_model = lm(life_expectancy ~ infant_deaths + hiv_aids + gdp_capita +
 #| fig.show: "hold"
 
 plot(preliminary_model, which = 1)
-plot(preliminary_model, which = 2)
+# plot(preliminary_model, which = 2)
 standard_residuals = rstandard(preliminary_model)
 plot(data_interest$schooling, standard_residuals, main="Standardized Residuals V. Schooling", 
      xlab="Average Years in School", ylab="Standardized Residuals")
+hist(rstandard(preliminary_model), main="Histogram of Standized Residuals", xlab="Residuals")
 
 ```
 
