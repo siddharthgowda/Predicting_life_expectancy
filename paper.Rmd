@@ -186,7 +186,7 @@ hist(rstandard(preliminary_model), main="Histogram of Standized Residuals", xlab
 
 ```
 
-Residual analysis revealed several assumption violations. The **residual vs. fitted plot** showed a wave-like pattern, violating linearity, and demonstrated non-constant variance, particularly in the 60-70 year range. The **QQ plot** showed mostly normal residuals, but there was deviation at the tails, indicating minor normality violations. The **standardized residuals vs. schooling plot** showed no residual patterns and no significant violations of linearity or constant variance, suggesting schooling's relationship with life expectancy is appropriately modeled.
+Residual analysis revealed several assumption violations. The **residual vs. fitted plot** showed a wave-like pattern, violating linearity, and demonstrated non-constant variance, particularly in the 60-70 year range. The **residual histogram plot** showed a slightly slightly skewed left distribution, which is a minor violation of the normal errors assumption. The **standardized residuals vs. schooling plot** showed no residual patterns and no significant violations of linearity or constant variance, suggesting schooling's relationship with life expectancy is appropriately modeled.
 
 ## Preliminary Model Results
 
@@ -258,6 +258,8 @@ Our findings partially align with existing literature. Like Miladinov (2020), we
 
 # Model Selection
 
+From the preliminary results section, we discovered that a simple linear model that predicts life expectancy for developing countries using the variables of interest had invalid predicting power. The biggest reason for this was because the preliminary model violated linearity. Therefore, we had to make numerous transformations.
+
 ```{r}
 
 ggplot(data_interest, aes(x = percentage_expenditure, y = life_expectancy)) +
@@ -276,6 +278,10 @@ ggplot(data_interest, aes(x = log1p(percentage_expenditure), y = life_expectancy
 
 
 ```
+The first transformation we had was with health expenditure as a percentage of GDP per capita. For health expenditure, the figure above reveals a non-linear, positive exponential relationship with life expectancy. To linearize this relationship, we applied a $log(1+Health Expenditure)$ transformation as the $log$ function is in the inverse of exponential. We used $log(1+x)$ rather than $log(x)$ to accommodate the theoretical possibility of zero expenditure values since $log(0$) is undefined.
+
+The transformation figure demonstrates a moderately strong positive linear relationship between transformed health expenditure and life expectancy, though we note that variance decreases slightly as percentage expenditure increases, indicating some minor constant variance violations.
+
 ```{r}
 
 
@@ -294,7 +300,9 @@ ggplot(data_interest, aes(x = log1p(infant_deaths), y = life_expectancy)) +
   theme_minimal()
 
 ```
+For infant deaths, we applied a $log(1+\text{infant deaths})$ transformation based on the weak exponential relationship observed in the figure. We used $log(1+x)$ to maintain a valid domain for potential zero values. The transformed data reveals a generally negative relationship with life expectancy, though with two distinct patterns: higher variability and occasional uniformity between 0-2, and a curved downward slope between 2-6. After testing multiple transformations, $log(1+x)$ yielded the best results, despite not resulting in a perfectly linear relationship.
 
+We also considered removing outlier countries with over 900 infant deaths per 100 people as shown in the figure. This was done to potentially create a stronger exponential relationship between infant deaths and life expectancy. However, after removing the outliers, the transformation still showed no improved linearity after removal. Furthermore, the final model results remained largely unchanged without these outliers, indicating they were not influential. Therefore, we kept these data points in the final model dataset.
 
 ```{r}
 
@@ -314,6 +322,8 @@ ggplot(data_interest, aes(x = log1p(hiv_aids), y = life_expectancy)) +
 
 
 ```
+For the third and final transformation, we decided to do a $log(1+\text{HIV/AIDS Deaths})$ transformation. From the figure above, the relationship between aids and life expectancy is negative and exponential so a log transformation is valid. Similarly, $log(1 + x)$ is used to ensure a valid domain. From the transformation plot above, $log(1+\text{HIV/AIDS Deaths})$ and life expectancy appear to have a moderately strong negative linear relationship.
+
 
 ```{r}
 #| label: fig-gdpcapitahealth
@@ -331,6 +341,8 @@ ggplot(data_interest, aes(x = percentage_expenditure, y = gdp_capita)) +
        x = "Health Expenditure (as a percentage of GDP per capita)", 
        y = "GDP per Capita")
 ```
+In terms of variables removed, we decided to remove GDP per capita because in the preliminary model, its coefficient had a p-value of 0.891, making it redundant. After doing further analysis, we determined that GDP Per Capita is highly correlated with a country's health expenditure (as seen in the figure above). Therefore, it is unnecessary to include GDP per capita in our final model.
+
 # Final Model Inference & Results
 
 ```{r}
@@ -353,13 +365,14 @@ secondary_model_infant_lg = lm(life_expectancy ~ infant_deaths_lg1p + hiv_aids_l
                        data=data_interest_final)
 summary(secondary_model_infant_lg)
 
-plot(secondary_model_infant_lg, which = 1)
-plot(secondary_model_infant_lg, which = 2)
-hist(rstandard(secondary_model_infant_lg))
-# hist(rstandard(preliminary_model))
-
 
 ```
+
+The final multiple linear regression model constructed to address the research question: How economic, health and social factors influence life expectancy in developing countries, collectively and individually? It revealed nuanced insights into these relationships.
+
+## Coefficent and Model Interpretation
+
+The regression equation developed from our analysis was as follows:
 
 $$
 \begin{aligned}
@@ -371,6 +384,19 @@ $$
 & - 1.511 \times \text{AlcoholNegligible}
 \end{aligned}
 $$
+
+Each regression coefficient offers significant interpretive power concerning how various factors influence life expectancy in the specific context of developing countries.
+
+The intercept (57.86 years) provides a baseline measure of predicted life expectancy, indicating that under conditions of minimal education, health expenditure, negligible mortality from infants or HIV/AIDS, life expectancy would approximate 57.9 years. This baseline highlights the intrinsic life expectancy potential in developing countries, notwithstanding the prevailing adverse conditions.
+
+Among the health-related factors, infant mortality emerges as a crucial determinant of life expectancy. The negative coefficient of -0.374 indicates that each 1 unit increase in infant deaths (after log transformation) results in a decrease of approximately 0.374 years in life expectancy, assuming all other variables are held constant. This finding underscores the critical role infant mortality plays as a reflection of healthcare quality, maternal health services, and broader socioeconomic conditions. This result is consistent with prior literature; Miladinov (2020) similarly identified infant mortality as significantly detrimental to life expectancy within EU accession candidate countries, emphasizing the universal implications of reducing infant mortality as a public health priority. Similarly, Adebayo et al. (2024) found that increased infant mortality significantly diminishes life expectancy in the United States, aligning with the global public health consensus on the relationship between infant health outcomes and longevity.
+
+The factor with the most severe negative impact in our model was HIV/AIDS prevalence, with a coefficient of -6.228, indicating that a 1 unit rise in HIV/AIDS deaths (log-transformed) would significantly lower life expectancy by approximately 6.23 years, assuming all other variables are held constant. This substantial reduction emphasizes the profound effect HIV/AIDS continues to have in developing countries, both through direct mortality and broader health system burdens. The literature corroborates this finding, as prior research consistently highlights HIV/AIDS as a severe constraint on longevity and overall development in low-income settings (Miladinov, 2020).
+
+Education, measured as years of schooling, exhibited a strong positive correlation with life expectancy. Specifically, the coefficient of 1.067 suggests that each additional year of schooling corresponds to an increase of approximately 1.067 years in life expectancy, assuming all other variables are held constant. This significant positive impact is consistent with prior research, such as the findings by Roffia et al. (2023), who reported education as a robust predictor of increased longevity across OECD countries. Enhanced educational attainment likely translates to improved health literacy, better access to healthcare, higher income levels, and healthier lifestyle choices, all collectively enhancing life expectancy. This result demonstrates the critical role educational investment plays in improving health outcomes within developing countries.
+
+Health expenditure, measured as a percentage of GDP per capita, was also positively associated with increased life expectancy. A 1 unit increase in health expenditure as a percentage of GDP per capita (log-transformed) correlates with an approximately 0.54-year increase in life expectancy, assuming all other variables are held constant. This finding aligns with previous studies highlighting healthcare spending as a central determinant of health outcomes and longevity. Both Adebayo et al. (2024) and Roffia et al. (2023) confirm that investments in healthcare infrastructure, preventive medicine, and medical treatment are pivotal in improving overall health conditions and life expectancy. This underscores the importance for policymakers in developing nations to prioritize healthcare expenditure strategically to maximize public health benefits.
+
 
 ```{r}
 
@@ -408,6 +434,16 @@ kable(results, col.names = c("Term", "Estimate", "Std. Error", "t value", "Pr(>|
 
 ```
 
+## Model Assumptions
+
+```{r}
+plot(secondary_model_infant_lg, which = 1)
+hist(rstandard(secondary_model_infant_lg))
+```
+### TODO: Add A Couple Sentences about how the model fits the assumptions now
+
+## Model Performance
+
 ```{r}
 
 stepwise_regression <- regsubsets(life_expectancy ~ ., data = data_interest_final, 
@@ -419,8 +455,42 @@ plot(stepwise_regression, scale = "adjr2")
 plot(stepwise_regression, scale = "bic")
 
 ```
+In assessing the robustness and explanatory power of our model, several key metrics were considered. The multiple R-squared value of 0.8053 indicates that approximately 80.5% of the variation in life expectancy across developing nations is explained by our model. This high value implies strong predictive capability and robustness of our chosen explanatory variables. The adjusted R-squared value of 0.8046, closely aligning with the R-squared, reinforces our model's reliability, suggesting minimal overfitting. Additionally, model selection guided by Bayesian Information Criterion (BIC) reinforced the chosen variables' optimal balance between complexity and explanatory power. Together, these metrics demonstrate a well-performing model suitable for policy analysis and strategic decision-making.
+
+In summary, our final model provides clear, statistically significant insights into how various economic, health, and social factors collectively and individually shape life expectancy in developing countries. The results confirm established hypotheses regarding infant mortality, HIV/AIDS prevalence, education, and health expenditure. They also illuminate intriguing questions concerning the complex role of alcohol consumption and economic indicators in public health contexts.
 
 # Discussion and Conclusion
+
+## Summary of Study
+
+In this study we explored factors that influence life expectancy in developing countries using multiple linear regression. We obtained our dataset from Kaggle (Life Expectancy WHO dataset), which compiles health, demographic, and economic indicators from the World Health Organization and United Nations. After cleaning the dataset and removing missing values, we focused on five predictors: schooling, alcohol consumption (categorical), infant deaths, HIV/AIDS prevalence, and health expenditure (as a percentage of GDP per capita). Because the relationships for infant deaths, HIV/AIDS, and health expenditure with life expectancy were all exponential-like, log-transformations were applied to stabilize variance and improve model fit. Residual analysis confirmed no major violations of linear regression model assumptions, while model selection using regsubsets confirmed that our final set of predictors balanced model simplicity and predictive strength. Our goal was to determine which factors most significantly affect life expectancy in developing nations and to derive policy recommendations based on our findings.
+
+## Key Findings
+
+From the model results, we have determined that school has a significant and sizable impact on life expectancy for developing countries. The impact is significant because the t-value is less than $2\times10^{-16}$, meaning there is an extremely small probability of the impact of schooling on life expectancy solely by chance. The reason the impact is sizable is because in terms of absolute value, school has the second largest estimate (behind alcohol being negligible) with an increase of 1.06 in life expectancy for every additional year in schooling.
+
+This finding also makes sense from a theoretical standpoint. The more educated an individual is, they will probably have more skills in adulthood. Therefore, they most likely will get better jobs compared to people with less education. As a result, those individuals will have more money for basic needs and healthcare increasing their overall life expectancy. Additionally, people who are more educated may also be more likely to be aware of health risks, which also increases their life expectancy. Hence, we recommend countries to prioritize increasing their education system compared to most of the other variables in the model.
+
+However, it is important to note that schooling’s relationship with life expectancy could be confounding. For instance, richer countries might in general have higher life expectancy and also have stronger education systems. In this case, the wealth of the country is driving both the higher and life expectation and stronger education system. However, we doubt that schooling is confounding in this manner since weather countries probably spend more on health care, so if schooling was confounding is should be correlated with health expenditure, but this is not true since both variables’s coefficients have p-values of $2\times10^{-16}$.
+
+Infant mortality was found to have a significant negative relationship with life expectancy. After log-transforming the infant deaths variable, the estimated coefficient was -3.241 with a p-value of <2e-16. This strong negative coefficient indicates that even a small increase in the logged number of infant deaths significantly lowers predicted life expectancy. This showed that as infant deaths per 1000 live births increase, life expectancy declines significantly. This finding is intuitive because high infant mortality rates reflect poor healthcare infrastructure and limited access to essential resources.
+
+HIV/AIDS prevalence was another strong negative predictor of life expectancy. After log-transformation, the estimated coefficient for HIV/AIDS was -1.787 with a p-value of < 2e-16. The negative sign indicates that countries with higher rates of HIV/AIDS experience lower life expectancy, consistent with the devastating impact of HIV/AIDS on national health systems. HIV/AIDS directly weakens healthcare systems and contributes to shorter life expectancy.
+
+Health expenditure (as a percentage of GDP per capita) was positively associated with life expectancy. It was log-transformed and has a coefficient of 1.425 and a p value of 0.00087. Although the p-value is slightly higher than the other predictors, it is still highly statistically significant.Its effect is still smaller compared to schooling and infant deaths but remains statistically significant. This suggests that even moderate increases in healthcare investment can meaningfully improve population health. This aligns with expectations: better-funded health systems tend to provide wider access to vaccinations, early disease detection and quality treatments. All these factors enhance longevity.
+
+Reducing infant mortality, controlling HIV/AIDS and increasing healthcare expenditure are interconnected strategies that collectively raise life expectancy for developing countries. Our findings show that public health initiatives are crucial for improving infant healthcare, access to vaccinations, food banks and diseases prevention programs. Countries which aim to improve life expectancy should adopt a more comprehensive approach that combines investment in health care infrastructure which will have a trickle effect on all these other variables. Together, these efforts would counteract the drivers of infant mortality, HIV/AIDs and overall low life expectancy.
+
+Alcohol consumption produced an interesting result. Countries under negligible alcohol consumption (≤1.08 liters per capita) had a life expectancy 0.676 years lower on average than countries where alcohol consumption was present. This was based on the coefficient for negligible alcohol (-0.676 and p-value = 0.0123). Although this finding is statistically significant, it is counterintuitive. Alcohol is typically associated with negative health effects. A likely explanation is that there may be a confounding variable: alcohol consumption might correlate with broader indicators of economic development, such as better healthcare or nutrition, rather than causing increased life expectancy directly. Future research regarding recreational drug use and cultural factors could help clarify this relationship.
+
+## Future Steps
+
+In the future, this analysis could be expanded on in numerous manners. For instance, the analysis could be done for both semi-developed and developed countries. This would allow us to compare and contrast what variables impact life expectancy for each category. As a result, we could create a step-by-step guide for how developing countries can increase life expectancy even after those countries have developed into semi-developed or developed countries.
+
+Additionally, our analysis could have benefited from a wider range of variables. In our final model, four of our five variables were health related (infant deaths, hiv/aids cases, percent of GDP per capita spent on healthcare, if alcohol is consumed). In the future, we would look at other data sources, and try to get other types of variables, especially from economic and financial data. 
+
+Moreover, the biggest potential improvement for this study has to do with the alcohol consumed variable. The issue with the variable is that it is a bit too specific. The point is that alcohol consumption is merely one type of recreational drug use. In the future, we would get data that would track information related to numerous types of recreational drug use. This is useful because different countries and different cultures tend to use different types of drugs for recreational purposes (if at all). Therefore capturing all this data would allow us to have a better understanding of how drug use affects life expectancy in developing countries.
+
 
 \newpage
 
