@@ -213,7 +213,6 @@ model_table <- data.frame(
 # Generate a nicely formatted table
 kable(model_table, digits = 4, align = "c",
       col.names = c("Variable", "Estimate", "Std. Error", "Pr(>|t|)"))
-
 ```
 
 
@@ -407,6 +406,10 @@ Education, measured as years of schooling, exhibited a strong positive correlati
 
 Health expenditure, measured as a percentage of GDP per capita, was also positively associated with increased life expectancy. A 1 unit increase in health expenditure as a percentage of GDP per capita (log-transformed) correlates with an approximately 0.54-year increase in life expectancy, assuming all other variables are held constant. This finding aligns with previous studies highlighting healthcare spending as a central determinant of health outcomes and longevity. Both Adebayo et al. (2024) and Roffia et al. (2023) confirm that investments in healthcare infrastructure, preventive medicine, and medical treatment are pivotal in improving overall health conditions and life expectancy. This underscores the importance for policymakers in developing nations to prioritize healthcare expenditure strategically to maximize public health benefits.
 
+Interestingly, our model revealed an unexpected negative coefficient (-1.511) associated with countries categorized as having negligible alcohol consumption, indicating that these countries, on average, have approximately 1.51 years lower life expectancy compared to those with regular alcohol consumption, assuming all other variables are held constant. This counterintuitive result contrasts with the existing literature, where higher alcohol consumption is typically linked to adverse health outcomes and lower longevity (Roffia et al., 2023). It suggests that in developing countries, negligible alcohol consumption may reflect broader socio-cultural, economic, or policy contexts, such as restrictive laws or limited social freedoms, potentially indirectly correlating with restricted healthcare access or lower socioeconomic status. This finding indicates a need for deeper qualitative investigation to understand the broader social determinants involved and their indirect effects on life expectancy.
+
+It is important to note a deviation from previous literature regarding GDP per capita, which was ultimately excluded from our final model due to statistical insignificance. Prior studies consistently demonstrated GDP per capita as a strong predictor positively associated with life expectancy (Miladinov, 2020; Adebayo et al., 2024). However, in our model, the relationship between GDP per capita and life expectancy might have been captured indirectly through other explanatory variables like schooling and healthcare expenditure. These variables may effectively mediate the economic benefits usually associated with GDP, highlighting the importance of explicitly identifying and understanding such mediating mechanisms in developing countries.
+
 
 ```{r}
 #| label: tbl-finalcoefficentplots
@@ -537,8 +540,6 @@ Siddharth: Completed writing for section 3, 4, and 6. Edited section 5. Created 
 Hasan: Wrote for section 1,2,3 and 6. Conducted research and constructed the research question. Created and interpreted key findings for Infant deaths, HIV/AIDs and health expenditure. Created policy recommendations.
 
 Arshh: Contributed writing to Section 1, 2 and 3. Wrote section 5, helped with interpretation of final model results and model transformations, conducted research and literature review, helped formulate research question and helped with formatting
-
-
 
 ## Preliminary Contributions
 
