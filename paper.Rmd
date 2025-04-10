@@ -12,7 +12,17 @@ toc: true
 ---
 
 
-# Contributions [TODO: UPDATE THIS]
+# Contributions
+
+## Final Contributions
+
+Siddharth: Completed writing for section 3, 4, and 6. Edited section 5. Created an Rmd file, performed regression analysis in R, formatted text in R Studio, generated data visualizations.
+
+Hasan: Completed writing for section 1,2,3 and 6. Conducted research and constructed the research question.
+
+Arshh: Wrote section 5, helped with interpretation of final model results and model transformations, conducted research and literature review, helped formulate research question and helped with formatting.
+
+## Preliminary Contributions
 
 Siddharth Gowda: Cleaning data, generating tables and plots, plot interpretation, data description writing, preliminary model writing.
 
@@ -261,19 +271,25 @@ Our findings partially align with existing literature. Like Miladinov (2020), we
 From the preliminary results section, we discovered that a simple linear model that predicts life expectancy for developing countries using the variables of interest had invalid predicting power. The biggest reason for this was because the preliminary model violated linearity. Therefore, we had to make numerous transformations.
 
 ```{r}
+#| label: fig-healthexpenditureplots
+#| layout-ncol: 2
+#| fig-align: "center"
+#| warning: false
+#| message: false
+#| echo: false
 
 ggplot(data_interest, aes(x = percentage_expenditure, y = life_expectancy)) +
   geom_point(alpha = 0.6) +
   geom_smooth(method = "loess", se = TRUE, color = "blue") +
-  labs(x = "Percentage Expenditure (as percentage of GDP per capita)", y = "Life Expectancy", 
-       title = "Percentage Expenditure vs Life Expectancy") +
+  labs(x = "Health Expenditure", y = "Life Expectancy", 
+       title = "Health Expenditure (as percentage of GDP per capita) vs Life Expectancy") +
   theme_minimal()
 
 ggplot(data_interest, aes(x = log1p(percentage_expenditure), y = life_expectancy)) +
   geom_point(alpha = 0.6) +
   geom_smooth(method = "lm", se = TRUE, color = "red") +
-  labs(x = "Log(1 + Percentage Expenditure)", y = "Life Expectancy", 
-       title = "Log-Transformed Percentage Expenditure vs Life Expectancy") +
+  labs(x = "Log(1 + Health Expenditure)", y = "Life Expectancy", 
+       title = "Log-Transformed Health Expenditure vs Life Expectancy") +
   theme_minimal()
 
 
@@ -283,7 +299,12 @@ The first transformation we had was with health expenditure as a percentage of G
 The transformation figure demonstrates a moderately strong positive linear relationship between transformed health expenditure and life expectancy, though we note that variance decreases slightly as percentage expenditure increases, indicating some minor constant variance violations.
 
 ```{r}
-
+#| label: fig-infantdeathstransformationplots
+#| layout-ncol: 2
+#| fig-align: "center"
+#| warning: false
+#| message: false
+#| echo: false
 
 ggplot(data_interest, aes(x = infant_deaths, y = life_expectancy)) +
   geom_point(alpha = 0.6) +
@@ -305,6 +326,12 @@ For infant deaths, we applied a $log(1+\text{infant deaths})$ transformation bas
 We also considered removing outlier countries with over 900 infant deaths per 100 people as shown in the figure. This was done to potentially create a stronger exponential relationship between infant deaths and life expectancy. However, after removing the outliers, the transformation still showed no improved linearity after removal. Furthermore, the final model results remained largely unchanged without these outliers, indicating they were not influential. Therefore, we kept these data points in the final model dataset.
 
 ```{r}
+#| label: fig-hivtransformationplots
+#| layout-ncol: 2
+#| fig-align: "center"
+#| warning: false
+#| message: false
+#| echo: false
 
 ggplot(data_interest, aes(x = hiv_aids, y = life_expectancy)) +
   geom_point(alpha = 0.6) +
@@ -346,6 +373,10 @@ In terms of variables removed, we decided to remove GDP per capita because in th
 # Final Model Inference & Results
 
 ```{r}
+#| include: false
+#| warning: false
+#| message: false
+#| echo: false
 
 data_interest_final <- data_interest %>%
   select(-gdp_capita) %>%
@@ -363,7 +394,7 @@ data_interest_final <- data_interest %>%
 secondary_model_infant_lg = lm(life_expectancy ~ infant_deaths_lg1p + hiv_aids_lg1p + 
                          schooling + percentage_expenditure_lg1p + alcohol, 
                        data=data_interest_final)
-summary(secondary_model_infant_lg)
+# summary(secondary_model_infant_lg)
 
 
 ```
@@ -399,11 +430,14 @@ Health expenditure, measured as a percentage of GDP per capita, was also positiv
 
 
 ```{r}
+#| label: tbl-finalcoefficentplots
+#| warning: false
+#| message: false
+#| echo: false
 
-# Create the initial data frame with regression results
 results <- data.frame(
-  Term = c("(Intercept)", "infant_deaths_lg1p", "hiv_aids_lg1p", "schooling", 
-           "percentage_expenditure_lg", "alcoholNegligible"),
+  Term = c("(Intercept)", "log(1 + Infant Deaths)", "log(hiv/aids Deaths + 1)", "schooling", 
+           "log(1 + percentage expenditure)", "alcoholNegligible"),
   Estimate = c(57.86168, -0.37360, -6.22788, 1.06694, 0.54056, -1.51114),
   Std_Error = c(0.72966, 0.06815, 0.13066, 0.05544, 0.06703, 0.23922),
   t_value = c(79.300, -5.482, -47.663, 19.244, 8.064, -6.317),
@@ -437,14 +471,27 @@ kable(results, col.names = c("Term", "Estimate", "Std. Error", "t value", "Pr(>|
 ## Model Assumptions
 
 ```{r}
+#| label: fig-finalmodelassumptionsplot
+#| layout-ncol: 2
+#| fig-align: "center"
+#| warning: false
+#| message: false
+#| echo: false
+
 plot(secondary_model_infant_lg, which = 1)
 hist(rstandard(secondary_model_infant_lg))
 ```
-### TODO: Add A Couple Sentences about how the model fits the assumptions now
+Our preliminary model violated the assumptions of linearity and constant variance. There was also a minor violation of the normal errors assumption as they were slightly skewed left. However, post adding the log transformations, the improved model does not violate these assumptions.
 
 ## Model Performance
 
 ```{r}
+#| label: fig-stepwiseplots
+#| layout-ncol: 2
+#| fig-align: "center"
+#| warning: false
+#| message: false
+#| echo: false
 
 stepwise_regression <- regsubsets(life_expectancy ~ ., data = data_interest_final, 
                                   nvmax = 10, nbest = 1, really.big = TRUE, method = "seqrep")
