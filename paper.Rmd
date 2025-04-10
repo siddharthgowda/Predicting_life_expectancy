@@ -11,28 +11,6 @@ number-sections: true
 toc: true
 ---
 
-
-# Contributions
-
-## Final Contributions
-
-Siddharth: Completed writing for section 3, 4, and 6. Edited section 5. Created an Rmd file, performed regression analysis in R, formatted text in R Studio, generated data visualizations.
-
-Hasan: Completed writing for section 1,2,3 and 6. Conducted research and constructed the research question.
-
-Arshh: Wrote section 5, helped with interpretation of final model results and model transformations, conducted research and literature review, helped formulate research question and helped with formatting.
-
-## Preliminary Contributions
-
-Siddharth Gowda: Cleaning data, generating tables and plots, plot interpretation, data description writing, preliminary model writing.
-
-Syed Hasan: Research to find 3 peer reviewed articles, research question, Data description writing, Preliminary model writing and plot interpretation.
-
-Arshh Relan: Introduction writing, Data Description (Predictor Variables), Preliminary Model Interpretation and Writing, Research Question.
-
-
-\newpage
-
 # Introduction
 
 Life expectancy is a fundamental indicator of a country's overall health and development. It reflects the effectiveness of healthcare systems, economic stability, and social progress. In developing countries healthcare resources are often constrained and economic disparities persist. Here, understanding the factors that influence life expectancy is critical for shaping effective policies. This study aims to answer the question: How economic, health and social factors influence life expectancy in developing countries, collectively and individually?
@@ -408,13 +386,14 @@ The regression equation developed from our analysis was as follows:
 $$
 \begin{aligned}
 \hat{\text{LifeExpectancy}} =\ & 57.86 \\
-& - 0.374 \times \text{InfantDeaths\_lg1p} \\
-& - 6.228 \times \text{HIV\_AIDS\_lg1p} \\
+& - 0.374 \times \log(1 + \text{Infant Deaths}) \\
+& - 6.228 \times \log(1 + \text{HIV/AIDS Deaths}) \\
 & + 1.067 \times \text{Schooling} \\
-& + 0.541 \times \text{PercentageExpenditure\_lg1p} \\
+& + 0.541 \times \log(1 + \text{Health Expenditure (as percentage of GDP per capita)}) \\
 & - 1.511 \times \text{AlcoholNegligible}
 \end{aligned}
 $$
+
 
 Each regression coefficient offers significant interpretive power concerning how various factors influence life expectancy in the specific context of developing countries.
 
@@ -462,7 +441,14 @@ upper_bound <- results$Estimate + margin_of_error
 results$UpperBound95 <- lower_bound
 results$LowerBound95 <- upper_bound
 
-kable(results, col.names = c("Term", "Estimate", "Std. Error", "t value", "Pr(>|t|)", 
+# rounding to 3 decimal places
+results$Estimate     <- round(results$Estimate, 3)
+results$Std_Error    <- round(results$Std_Error, 3)
+results$t_value      <- round(results$t_value, 3)
+results$LowerBound95 <- round(results$LowerBound95, 3)
+results$UpperBound95 <- round(results$UpperBound95, 3)
+
+kable(results, col.names = c("Term", "Coefficent Estimates", "Std. Error", "t value", "Pr(>|t|)", 
                             "95% CI Lower", "95% CI Upper"), 
       caption = "Final Regression Results")
 
@@ -483,11 +469,12 @@ hist(rstandard(secondary_model_infant_lg))
 ```
 Our preliminary model violated the assumptions of linearity and constant variance. There was also a minor violation of the normal errors assumption as they were slightly skewed left. However, post adding the log transformations, the improved model does not violate these assumptions.
 
+\newpage
+
 ## Model Performance
 
 ```{r}
 #| label: fig-stepwiseplots
-#| layout-ncol: 2
 #| fig-align: "center"
 #| warning: false
 #| message: false
@@ -537,6 +524,25 @@ In the future, this analysis could be expanded on in numerous manners. For insta
 Additionally, our analysis could have benefited from a wider range of variables. In our final model, four of our five variables were health related (infant deaths, hiv/aids cases, percent of GDP per capita spent on healthcare, if alcohol is consumed). In the future, we would look at other data sources, and try to get other types of variables, especially from economic and financial data. 
 
 Moreover, the biggest potential improvement for this study has to do with the alcohol consumed variable. The issue with the variable is that it is a bit too specific. The point is that alcohol consumption is merely one type of recreational drug use. In the future, we would get data that would track information related to numerous types of recreational drug use. This is useful because different countries and different cultures tend to use different types of drugs for recreational purposes (if at all). Therefore capturing all this data would allow us to have a better understanding of how drug use affects life expectancy in developing countries.
+
+
+# Contributions
+
+## Final Contributions
+
+Siddharth: Completed writing for section 3, 4, and 6. Edited section 5. Created an Rmd file, performed regression analysis in R, formatted text in R Studio, generated data visualizations.
+
+Hasan: Completed writing for section 1,2,3 and 6. Conducted research and constructed the research question.
+
+Arshh: Wrote section 5, helped with interpretation of final model results and model transformations, conducted research and literature review, helped formulate research question and helped with formatting.
+
+## Preliminary Contributions
+
+Siddharth Gowda: Cleaning data, generating tables and plots, plot interpretation, data description writing, preliminary model writing.
+
+Syed Hasan: Research to find 3 peer reviewed articles, research question, Data description writing, Preliminary model writing and plot interpretation.
+
+Arshh Relan: Introduction writing, Data Description (Predictor Variables), Preliminary Model Interpretation and Writing, Research Question.
 
 
 \newpage
