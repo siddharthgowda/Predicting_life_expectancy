@@ -466,7 +466,7 @@ kable(results, col.names = c("Term", "Coefficent Estimates", "Std. Error", "Pr(>
 #| echo: false
 
 plot(secondary_model_infant_lg, which = 1)
-hist(rstandard(secondary_model_infant_lg))
+hist(rstandard(secondary_model_infant_lg),  main="Histogram of Standized Residuals", xlab="Residuals")
 ```
 Our preliminary model violated the assumptions of linearity and constant variance. There was also a minor violation of the normal errors assumption as they were slightly skewed left. However, post adding the log transformations, the improved model does not violate these assumptions.
 
