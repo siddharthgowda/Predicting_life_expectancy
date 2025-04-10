@@ -206,13 +206,13 @@ model_table <- data.frame(
                "Schooling", "Percentage Expenditure", "Alcohol (Negligible)"),
   Estimate = c(49.50, -0.002131, -0.6713, 7.542e-06, 1.701, 0.00109, -0.670),
   Std_Error = c(0.7476, 0.0009369, 0.01917, 5.514e-05, 0.06129, 0.0003605, 0.2859),
-  T_Value = c(66.216, -2.274, -35.018, 0.137, 27.757, 3.025, -2.343),
+  # T_Value = c(66.216, -2.274, -35.018, 0.137, 27.757, 3.025, -2.343),
   P_Value = c("< 2e-16", "0.02309", "< 2e-16", "0.89121", "< 2e-16", "0.00253", "0.01924")
 )
 
 # Generate a nicely formatted table
 kable(model_table, digits = 4, align = "c",
-      col.names = c("Variable", "Estimate", "Std. Error", "t Value", "Pr(>|t|)"))
+      col.names = c("Variable", "Estimate", "Std. Error", "Pr(>|t|)"))
 
 ```
 
@@ -528,16 +528,17 @@ Additionally, our analysis could have benefited from a wider range of variables.
 
 Moreover, the biggest potential improvement for this study has to do with the alcohol consumed variable. The issue with the variable is that it is a bit too specific. The point is that alcohol consumption is merely one type of recreational drug use. In the future, we would get data that would track information related to numerous types of recreational drug use. This is useful because different countries and different cultures tend to use different types of drugs for recreational purposes (if at all). Therefore capturing all this data would allow us to have a better understanding of how drug use affects life expectancy in developing countries.
 
-
 # Contributions
 
 ## Final Contributions
 
 Siddharth: Completed writing for section 3, 4, and 6. Edited section 5. Created an Rmd file, performed regression analysis in R, formatted text in R Studio, generated data visualizations.
 
-Hasan: Completed writing for section 1,2,3 and 6. Conducted research and constructed the research question.
+Hasan: Wrote for section 1,2,3 and 6. Conducted research and constructed the research question. Created and interpreted key findings for Infant deaths, HIV/AIDs and health expenditure. Created policy recommendations.
 
-Arshh: Wrote section 5, helped with interpretation of final model results and model transformations, conducted research and literature review, helped formulate research question and helped with formatting.
+Arshh: Contributed writing to Section 1, 2 and 3. Wrote section 5, helped with interpretation of final model results and model transformations, conducted research and literature review, helped formulate research question and helped with formatting
+
+
 
 ## Preliminary Contributions
 
@@ -546,6 +547,7 @@ Siddharth Gowda: Cleaning data, generating tables and plots, plot interpretation
 Syed Hasan: Research to find 3 peer reviewed articles, research question, Data description writing, Preliminary model writing and plot interpretation.
 
 Arshh Relan: Introduction writing, Data Description (Predictor Variables), Preliminary Model Interpretation and Writing, Research Question.
+
 
 
 \newpage
