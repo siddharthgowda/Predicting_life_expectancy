@@ -410,16 +410,17 @@ Health expenditure, measured as a percentage of GDP per capita, was also positiv
 
 ```{r}
 #| label: tbl-finalcoefficentplots
+#| 
 #| warning: false
 #| message: false
 #| echo: false
 
 results <- data.frame(
-  Term = c("(Intercept)", "log(1 + Infant Deaths)", "log(hiv/aids Deaths + 1)", "schooling", 
-           "log(1 + percentage expenditure)", "alcoholNegligible"),
+  Term = c("Intercept", "log(1 + Infant Deaths)", "log(HIV/AIDS Deaths + 1)", "schooling", 
+           "log(1 + Health Expenditure)", "alcoholNegligible"),
   Estimate = c(57.86168, -0.37360, -6.22788, 1.06694, 0.54056, -1.51114),
   Std_Error = c(0.72966, 0.06815, 0.13066, 0.05544, 0.06703, 0.23922),
-  t_value = c(79.300, -5.482, -47.663, 19.244, 8.064, -6.317),
+  # t_value = c(79.300, -5.482, -47.663, 19.244, 8.064, -6.317),
   p_val = c("< 2e-16", "4.99e-08", "< 2e-16", "< 2e-16", "1.57e-15", "3.57e-10")
 )
 
@@ -444,11 +445,11 @@ results$LowerBound95 <- upper_bound
 # rounding to 3 decimal places
 results$Estimate     <- round(results$Estimate, 3)
 results$Std_Error    <- round(results$Std_Error, 3)
-results$t_value      <- round(results$t_value, 3)
+# results$t_value      <- round(results$t_value, 3)
 results$LowerBound95 <- round(results$LowerBound95, 3)
 results$UpperBound95 <- round(results$UpperBound95, 3)
 
-kable(results, col.names = c("Term", "Coefficent Estimates", "Std. Error", "t value", "Pr(>|t|)", 
+kable(results, col.names = c("Term", "Coefficent Estimates", "Std. Error", "Pr(>|t|)", 
                             "95% CI Lower", "95% CI Upper"), 
       caption = "Final Regression Results")
 
@@ -501,13 +502,13 @@ In this study we explored factors that influence life expectancy in developing c
 
 ## Key Findings
 
-From the model results, we have determined that school has a significant and sizable impact on life expectancy for developing countries. The impact is significant because the t-value is less than $2\times10^{-16}$, meaning there is an extremely small probability of the impact of schooling on life expectancy solely by chance. The reason the impact is sizable is because in terms of absolute value, school has the second largest estimate (behind alcohol being negligible) with an increase of 1.06 in life expectancy for every additional year in schooling.
+From the model results, we have determined that school has a significant and sizable impact on life expectancy for developing countries. The impact is significant because the p-value is less than $2\times10^{-16}$, meaning there is an extremely small probability of the impact of schooling on life expectancy solely by chance. The reason the impact is sizable is because in terms of absolute value, school has the second largest estimate (behind alcohol being negligible) with an increase of 1.06 in life expectancy for every additional year in schooling.
 
-However, it is important to note that schooling’s relationship with life expectancy could be confounding. For instance, richer countries might in general have higher life expectancy and also have stronger education systems. In this case, the wealth of the country is driving both the higher and life expectation and stronger education system. However, we doubt that schooling is confounding in this manner since weather countries probably spend more on health care, so if schooling was confounding is should be correlated with health expenditure, but this is not true since both variables’s coefficients have p-values of $2\times10^{-16}$.
+However, it is important to note that schooling’s relationship with life expectancy could be confounding. For instance, richer countries might in general have higher life expectancy and also have stronger education systems. In this case, the wealth of the country is driving both the higher and life expectation and stronger education system. However, we doubt that schooling is confounding in this manner since weather countries probably spend more on health care, so if schooling was confounding is should be correlated with health expenditure, but this is not true since both variables’s coefficients have p-values of $< 2\times10^{-16}$.
 
-Infant mortality was found to have a significant negative relationship with life expectancy. After log-transforming the infant deaths variable, the estimated coefficient was -3.241 with a p-value of <2e-16. This strong negative coefficient indicates that even a small increase in the logged number of infant deaths significantly lowers predicted life expectancy. This showed that as infant deaths per 1000 live births increase, life expectancy declines significantly. This finding is intuitive because high infant mortality rates reflect poor healthcare infrastructure and limited access to essential resources.
+Infant mortality was found to have a significant negative relationship with life expectancy. After log-transforming the infant deaths variable, the estimated coefficient was -3.241 with a p-value of < $2\times10^{-16}$. This strong negative coefficient indicates that even a small increase in the logged number of infant deaths significantly lowers predicted life expectancy. This showed that as infant deaths per 1000 live births increase, life expectancy declines significantly. This finding is intuitive because high infant mortality rates reflect poor healthcare infrastructure and limited access to essential resources.
 
-HIV/AIDS prevalence was another strong negative predictor of life expectancy. After log-transformation, the estimated coefficient for HIV/AIDS was -1.787 with a p-value of < 2e-16. The negative sign indicates that countries with higher rates of HIV/AIDS experience lower life expectancy, consistent with the devastating impact of HIV/AIDS on national health systems. HIV/AIDS directly weakens healthcare systems and contributes to shorter life expectancy.
+HIV/AIDS prevalence was another strong negative predictor of life expectancy. After log-transformation, the estimated coefficient for HIV/AIDS was -1.787 with a p-value of < $2\times10^{-16}$. The negative sign indicates that countries with higher rates of HIV/AIDS experience lower life expectancy, consistent with the devastating impact of HIV/AIDS on national health systems. HIV/AIDS directly weakens healthcare systems and contributes to shorter life expectancy.
 
 Health expenditure (as a percentage of GDP per capita) was positively associated with life expectancy. It was log-transformed and has a coefficient of 1.425 and a p value of 0.00087. Although the p-value is slightly higher than the other predictors, it is still highly statistically significant.Its effect is still smaller compared to schooling and infant deaths but remains statistically significant. This suggests that even moderate increases in healthcare investment can meaningfully improve population health. This aligns with expectations: better-funded health systems tend to provide wider access to vaccinations, early disease detection and quality treatments. All these factors enhance longevity.
 
